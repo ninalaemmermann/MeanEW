@@ -7,10 +7,13 @@ import numpy as np
 
 # get files from excel file and store in dataframe
 def get_files_from_csv(csv_file_path):
-    df = pd.read_csv(csv_file_path, encoding = 'utf-8', sep=";", usecols = ['Column1','Gender  ', 'Age     ', 'Duration', 'BName', 'Sz start', 'Sz stop', 'Spalte1', 'ARTF', 'BCKG', 'SEIZ', 'UNKNOWN', 'FNSZ', 'GNSZ', 'FNSZ1st', 'GNSZ1st', 'SPSZ', 'CPSZ', 'ABSZ', 'TNSZ', 'CNSZ', 'TCSZ', 'ATSZ', 'MYSZ', 'NESZ'])
+    df = pd.read_csv(csv_file_path, encoding = 'utf-8', sep=";", usecols = ['Gender  ', 'Age     ', 'Duration', 'BName', 'Sz start', 'Sz stop', 'Spalte1', 'ARTF', 'BCKG', 'SEIZ', 'UNKNOWN', 'FNSZ', 'GNSZ', 'FNSZ1st', 'GNSZ1st', 'SPSZ', 'CPSZ', 'ABSZ'])#, 'TNSZ', 'CNSZ', 'TCSZ', 'ATSZ', 'MYSZ', 'NESZ'])
     return df
     
-data_seizures = get_files_from_csv(r"D:/Git/MeanEW/All_eigenvalues/ABSZ_seizures.csv")
+# ABSZ    
+#data_seizures = get_files_from_csv(r"D:/Git/MeanEW/All_eigenvalues/ABSZ_seizures.csv")
+# FNSZ
+data_seizures = get_files_from_csv(r"D:/Git/MeanEW/All_eigenvalues/FNSZ_seizures.csv")
 
 # get a list of the filenames as stored
 file_name = []
@@ -114,7 +117,12 @@ if __name__ == "__main__":
 
     # Server paths
     REMOTE_PATH = "/home/data/deepeeg/temple_uni/v2.0.3/besa_preprocessed_by_annika/artifact_correction_no_bad/WB/avg/train"
-    LOCAL_PATH = "D:\\Git\\MeanEW\\All_eigenvalues\\Data\\ABSZ_seizure_WB"
+
+    # Local paths
+    # ABSZ
+    #LOCAL_PATH = "D:\\Git\\MeanEW\\All_eigenvalues\\Data\\ABSZ_seizure_WB"
+    # FNSZ
+    LOCAL_PATH = "D:\\Git\\MeanEW\\All_eigenvalues\\Data\\FNSZ_seizure_WB"
 
     # Liste der Dateien, die heruntergeladen werden sollen
     FILES_TO_DOWNLOAD = file_name
