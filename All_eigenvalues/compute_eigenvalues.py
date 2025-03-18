@@ -103,7 +103,7 @@ def process_file(signal, window_duration, sample_rate, patient):
     return time_points, first_eigenvalues, second_eigenvalues, third_eigenvalues
 
 
-ABSZ_dict = get_sz_start_end(r"D:/Git/MeanEW/All_eigenvalues/ABSZ_seizures.csv")	
+ABSZ_dict = get_sz_start_end(r"D:/Git/MeanEW/All_eigenvalues/FNSZ_seizures.csv")	
 
 filtered_first_eigenvalues = []
 filtered_second_eigenvalues = []
@@ -119,7 +119,7 @@ for i in range(len(ABSZ_dict)):
     for j in range(len(sz_start_end)):
         start = int(sz_start_end[j][0])
         end = int(sz_start_end[j][1])
-        file_path = f"D:\Git\MeanEW\All_eigenvalues\Data\ABSZ_seizure_WB\{patient}_res.OWN11101_filtWB_avg.edf"
+        file_path = f"D:\Git\MeanEW\All_eigenvalues\Data\FNSZ_seizure_WB\{patient}_res.OWN11101_filtWB_avg.edf"
         time, signal = read_edf_file(file_path)
         time_points, first_eigenvalues, second_eigenvalues, third_eigenvalues = process_file(signal, 3,256, patient)
         for k, time_point in enumerate(time_points):
@@ -152,6 +152,9 @@ def calculate_mean_eigenvalues(eigenvalues_list):
     mean_first_eigenvalues = {}
     mean_second_eigenvalues = {}
     mean_third_eigenvalues = {}
+    std_first_eigenvalues = {}
+    std_second_eigenvalues = {}
+    std_third_eigenvalues = {}
 
     for eigenvalue in eigenvalues_list[0]:
         patient = eigenvalue['patient']
@@ -169,27 +172,35 @@ def calculate_mean_eigenvalues(eigenvalues_list):
         patient = eigenvalue['patient']
         mean_third_eigenvalues[patient].append(eigenvalue['eigenvalue'])
 
-    # Calculate the mean for each patient
+    # Calculate the mean and standard deviation for each patient
     mean_first_eigenvalues = {patient: np.mean(values) for patient, values in mean_first_eigenvalues.items()}
     mean_second_eigenvalues = {patient: np.mean(values) for patient, values in mean_second_eigenvalues.items()}
     mean_third_eigenvalues = {patient: np.mean(values) for patient, values in mean_third_eigenvalues.items()}
+    std_first_eigenvalues = {patient: np.std(values) for patient, values in mean_first_eigenvalues.items()}
+    std_second_eigenvalues = {patient: np.std(values) for patient, values in mean_second_eigenvalues.items()}
+    std_third_eigenvalues = {patient: np.std(values) for patient, values in mean_third_eigenvalues.items()}
 
-    return mean_first_eigenvalues, mean_second_eigenvalues, mean_third_eigenvalues
+    return mean_first_eigenvalues, mean_second_eigenvalues, mean_third_eigenvalues, std_first_eigenvalues, std_second_eigenvalues, std_third_eigenvalues
 
-# Calculate mean eigenvalues for seizures
-mean_first_eigenvalues, mean_second_eigenvalues, mean_third_eigenvalues = calculate_mean_eigenvalues(
+# Calculate mean and standard deviation eigenvalues for seizures
+mean_first_eigenvalues, mean_second_eigenvalues, mean_third_eigenvalues, std_first_eigenvalues, std_second_eigenvalues, std_third_eigenvalues = calculate_mean_eigenvalues(
     [filtered_first_eigenvalues, filtered_second_eigenvalues, filtered_third_eigenvalues])
 
-# Calculate mean eigenvalues for background
-bckg_mean_first_eigenvalues, bckg_mean_second_eigenvalues, bckg_mean_third_eigenvalues = calculate_mean_eigenvalues(
+# Calculate mean and standard deviation eigenvalues for background
+bckg_mean_first_eigenvalues, bckg_mean_second_eigenvalues, bckg_mean_third_eigenvalues, bckg_std_first_eigenvalues, bckg_std_second_eigenvalues, bckg_std_third_eigenvalues = calculate_mean_eigenvalues(
     [bckg_first_eigenvalues, bckg_second_eigenvalues, bckg_third_eigenvalues])
 
-def plot_mean_eigenvalues(mean_first_eigenvalues, mean_second_eigenvalues, mean_third_eigenvalues, title):
+
+
+def plot_mean_eigenvalues(mean_first_eigenvalues, mean_second_eigenvalues, mean_third_eigenvalues, std_first_eigenvalues, std_second_eigenvalues, std_third_eigenvalues, title):
     """
-    Plot the mean eigenvalues for seizures or background
+    Plot the mean eigenvalues and standard deviation for seizures or background
     :param mean_first_eigenvalues: dictionary of mean first eigenvalues
     :param mean_second_eigenvalues: dictionary of mean second eigenvalues
     :param mean_third_eigenvalues: dictionary of mean third eigenvalues
+    :param std_first_eigenvalues: dictionary of standard deviation of first eigenvalues
+    :param std_second_eigenvalues: dictionary of standard deviation of second eigenvalues
+    :param std_third_eigenvalues: dictionary of standard deviation of third eigenvalues
     :param title: title of the plot
     """
     # Plot the mean eigenvalues
@@ -199,25 +210,85 @@ def plot_mean_eigenvalues(mean_first_eigenvalues, mean_second_eigenvalues, mean_
     fig, ax = plt.subplots(figsize=(12, 8))
 
     bar_width = 0.25
-    ax.bar(x - bar_width, mean_first_eigenvalues.values(), bar_width, label='First Eigenvalue')
-    ax.bar(x, mean_second_eigenvalues.values(), bar_width, label='Second Eigenvalue')
-    ax.bar(x + bar_width, mean_third_eigenvalues.values(), bar_width, label='Third Eigenvalue')
+    ax.bar(x - bar_width, mean_first_eigenvalues.values(), bar_width, yerr=std_first_eigenvalues.values(), label='First Eigenvalue')
+    ax.bar(x, mean_second_eigenvalues.values(), bar_width, yerr=std_second_eigenvalues.values(), label='Second Eigenvalue')
+    ax.bar(x + bar_width, mean_third_eigenvalues.values(), bar_width, yerr=std_third_eigenvalues.values(), label='Third Eigenvalue')
 
     ax.set_xlabel('Patients')
     ax.set_ylabel('Mean Eigenvalue')
     ax.set_title(title)
-    ax.set_xticks(x)
-    ax.set_xticklabels(patients)
+    #ax.set_xticks(x)
+    #ax.set_xticklabels(patients)
     ax.set_ylim(0, 1)
     ax.legend()
 
     plt.show()
 
-# Call the function to plot the mean eigenvalues for seizures
-plot_mean_eigenvalues(mean_first_eigenvalues, mean_second_eigenvalues, mean_third_eigenvalues, 'Mean Eigenvalues per Patient (Seizure)')
+    # Plot the distribution of eigenvalues
+    fig, axs = plt.subplots(3, 1, figsize=(12, 18))
 
-# Call the function to plot the mean eigenvalues for background
-plot_mean_eigenvalues(bckg_mean_first_eigenvalues, bckg_mean_second_eigenvalues, bckg_mean_third_eigenvalues, 'Mean Eigenvalues per Patient (Background)')
+    # Round eigenvalues to one decimal place
+    rounded_first_eigenvalues = [round(val, 2) for val in mean_first_eigenvalues.values()]
+    rounded_second_eigenvalues = [round(val, 2) for val in mean_second_eigenvalues.values()]
+    rounded_third_eigenvalues = [round(val, 2) for val in mean_third_eigenvalues.values()]
+
+    # Plot histogram for first eigenvalues
+    axs[0].hist(rounded_first_eigenvalues, bins=np.arange(0, 1.1, 0.1), edgecolor='black')
+    axs[0].set_title('Histogram der einzelnen Eigenwerte (erster Eigenwert)')
+    axs[0].set_xlabel('Eigenwert')
+    axs[0].set_ylabel('Häufigkeit')
+
+    # Plot histogram for second eigenvalues
+    axs[1].hist(rounded_second_eigenvalues, bins=np.arange(0, 1.1, 0.1), edgecolor='black')
+    axs[1].set_title('Histogram der einzelnen Eigenwerte (zweiter Eigenwert)')
+    axs[1].set_xlabel('Eigenwert')
+    axs[1].set_ylabel('Häufigkeit')
+
+    # Plot histogram for third eigenvalues
+    axs[2].hist(rounded_third_eigenvalues, bins=np.arange(0, 1.1, 0.1), edgecolor='black')
+    axs[2].set_title('Histogram der einzelnen Eigenwerte (dritter Eigenwert)')
+    axs[2].set_xlabel('Eigenwert')
+    axs[2].set_ylabel('Häufigkeit')
+
+    plt.tight_layout()
+    plt.show()
+
+def plot_metric(mean_first_eigenvalues, mean_second_eigenvalues, std_first_eigenvalues, std_second_eigenvalues, title):
+    """
+    Plot the metric (eigenvalue1 - eigenvalue2) / eigenvalue1 for each patient
+    :param mean_first_eigenvalues: dictionary of mean first eigenvalues
+    :param mean_second_eigenvalues: dictionary of mean second eigenvalues
+    :param std_first_eigenvalues: dictionary of standard deviation of first eigenvalues
+    :param std_second_eigenvalues: dictionary of standard deviation of second eigenvalues
+    :param title: title of the plot
+    """
+    # Calculate the metric for each patient
+    metric = {patient: (mean_first_eigenvalues[patient] - mean_second_eigenvalues[patient]) / mean_first_eigenvalues[patient] for patient in mean_first_eigenvalues.keys()}
+    metric_std = {patient: np.sqrt((std_first_eigenvalues[patient]**2 + std_second_eigenvalues[patient]**2) / mean_first_eigenvalues[patient]**2) for patient in mean_first_eigenvalues.keys()}
+
+    # Plot the metric
+    patients = list(metric.keys())
+    x = np.arange(len(patients))
+
+    fig, ax = plt.subplots(figsize=(12, 8))
+
+    ax.bar(x, metric.values(), yerr=metric_std.values(), capsize=5, label='(Eigenvalue1 - Eigenvalue2) / Eigenvalue1')
+
+    ax.set_xlabel('Files')
+    ax.set_ylabel('Metric')
+    ax.set_title(title)
+    ax.set_ylim(0, 1)
+    ax.legend()
+
+    plt.show()
+
+
+
+# Call the function to plot the mean eigenvalues and standard deviation for seizures
+plot_mean_eigenvalues(mean_first_eigenvalues, mean_second_eigenvalues, mean_third_eigenvalues, std_first_eigenvalues, std_second_eigenvalues, std_third_eigenvalues, 'Mean Eigenvalues per File (Seizure)')
+
+# Call the function to plot the mean eigenvalues and standard deviation for background
+plot_mean_eigenvalues(bckg_mean_first_eigenvalues, bckg_mean_second_eigenvalues, bckg_mean_third_eigenvalues, bckg_std_first_eigenvalues, bckg_std_second_eigenvalues, bckg_std_third_eigenvalues, 'Mean Eigenvalues per File (Non-Seizure)')
 
 
 
