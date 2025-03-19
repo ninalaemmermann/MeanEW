@@ -12,8 +12,10 @@ def get_files_from_csv(csv_file_path):
     
 # ABSZ    
 #data_seizures = get_files_from_csv(r"D:/Git/MeanEW/All_eigenvalues/ABSZ_seizures.csv")
-# FNSZ
-data_seizures = get_files_from_csv(r"D:/Git/MeanEW/All_eigenvalues/FNSZ_seizures.csv")
+## FNSZ
+#data_seizures = get_files_from_csv(r"D:/Git/MeanEW/All_eigenvalues/FNSZ_seizures.csv")
+# GNSZ
+data_seizures = get_files_from_csv(r"D:/Git/MeanEW/All_eigenvalues/GNSZ_seizures.csv")
 
 # get a list of the filenames as stored
 file_name = []
@@ -116,13 +118,14 @@ if __name__ == "__main__":
     PASSWORD = "sonnige%Aussichten5"
 
     # Server paths
-    REMOTE_PATH = "/home/data/deepeeg/temple_uni/v2.0.3/besa_preprocessed_by_annika/artifact_correction_no_bad/WB/avg/train"
+    REMOTE_PATH = "/home/data/deepeeg/temple_uni/v2.0.3/besa_preprocessed_by_annika/artifact_correction_no_bad/WB/avg/eval"
 
     # Local paths
-    # ABSZ
+    ## ABSZ
     #LOCAL_PATH = "D:\\Git\\MeanEW\\All_eigenvalues\\Data\\ABSZ_seizure_WB"
-    # FNSZ
-    LOCAL_PATH = "D:\\Git\\MeanEW\\All_eigenvalues\\Data\\FNSZ_seizure_WB"
+    ## FNSZ
+    #LOCAL_PATH = "D:\\Git\\MeanEW\\All_eigenvalues\\Data\\FNSZ_seizure_WB"
+    LOCAL_PATH = "D:\\Git\\MeanEW\\All_eigenvalues\\Data\\GNSZ_seizure_WB"
 
     # Liste der Dateien, die heruntergeladen werden sollen
     FILES_TO_DOWNLOAD = file_name

@@ -5,6 +5,7 @@ import dyca
 import dyca_internal
 from collections import Counter
 import edfio
+import math
 import mne
 from get_dict_with_seizure_information import get_sz_start_end
 import matplotlib.pyplot as plt
@@ -103,7 +104,7 @@ def process_file(signal, window_duration, sample_rate, patient):
     return time_points, first_eigenvalues, second_eigenvalues, third_eigenvalues
 
 
-ABSZ_dict = get_sz_start_end(r"D:/Git/MeanEW/All_eigenvalues/FNSZ_seizures.csv")	
+ABSZ_dict = get_sz_start_end(r"D:/Git/MeanEW/All_eigenvalues/GNSZ_seizures.csv")	
 
 filtered_first_eigenvalues = []
 filtered_second_eigenvalues = []
@@ -117,9 +118,9 @@ for i in range(len(ABSZ_dict)):
     patient = list(ABSZ_dict.keys())[i]
     sz_start_end = list(ABSZ_dict.values())[i]
     for j in range(len(sz_start_end)):
-        start = int(sz_start_end[j][0])
+        start = math.ceil(sz_start_end[j][0])
         end = int(sz_start_end[j][1])
-        file_path = f"D:\Git\MeanEW\All_eigenvalues\Data\FNSZ_seizure_WB\{patient}_res.OWN11101_filtWB_avg.edf"
+        file_path = f"D:\Git\MeanEW\All_eigenvalues\Data\GNSZ_seizure_WB\{patient}_res.OWN11101_filtWB_avg.edf"
         time, signal = read_edf_file(file_path)
         time_points, first_eigenvalues, second_eigenvalues, third_eigenvalues = process_file(signal, 3,256, patient)
         for k, time_point in enumerate(time_points):
@@ -192,15 +193,12 @@ bckg_mean_first_eigenvalues, bckg_mean_second_eigenvalues, bckg_mean_third_eigen
 
 
 
-def plot_mean_eigenvalues(mean_first_eigenvalues, mean_second_eigenvalues, mean_third_eigenvalues, std_first_eigenvalues, std_second_eigenvalues, std_third_eigenvalues, title):
+def plot_mean_eigenvalues(mean_first_eigenvalues, mean_second_eigenvalues, mean_third_eigenvalues, title):
     """
-    Plot the mean eigenvalues and standard deviation for seizures or background
+    Plot the mean eigenvalues for seizures or background
     :param mean_first_eigenvalues: dictionary of mean first eigenvalues
     :param mean_second_eigenvalues: dictionary of mean second eigenvalues
     :param mean_third_eigenvalues: dictionary of mean third eigenvalues
-    :param std_first_eigenvalues: dictionary of standard deviation of first eigenvalues
-    :param std_second_eigenvalues: dictionary of standard deviation of second eigenvalues
-    :param std_third_eigenvalues: dictionary of standard deviation of third eigenvalues
     :param title: title of the plot
     """
     # Plot the mean eigenvalues
@@ -210,15 +208,13 @@ def plot_mean_eigenvalues(mean_first_eigenvalues, mean_second_eigenvalues, mean_
     fig, ax = plt.subplots(figsize=(12, 8))
 
     bar_width = 0.25
-    ax.bar(x - bar_width, mean_first_eigenvalues.values(), bar_width, yerr=std_first_eigenvalues.values(), label='First Eigenvalue')
-    ax.bar(x, mean_second_eigenvalues.values(), bar_width, yerr=std_second_eigenvalues.values(), label='Second Eigenvalue')
-    ax.bar(x + bar_width, mean_third_eigenvalues.values(), bar_width, yerr=std_third_eigenvalues.values(), label='Third Eigenvalue')
+    ax.bar(x - bar_width, mean_first_eigenvalues.values(), bar_width, label='First Eigenvalue')
+    ax.bar(x, mean_second_eigenvalues.values(), bar_width, label='Second Eigenvalue')
+    ax.bar(x + bar_width, mean_third_eigenvalues.values(), bar_width, label='Third Eigenvalue')
 
     ax.set_xlabel('Patients')
     ax.set_ylabel('Mean Eigenvalue')
     ax.set_title(title)
-    #ax.set_xticks(x)
-    #ax.set_xticklabels(patients)
     ax.set_ylim(0, 1)
     ax.legend()
 
@@ -285,11 +281,61 @@ def plot_metric(mean_first_eigenvalues, mean_second_eigenvalues, std_first_eigen
 
 
 # Call the function to plot the mean eigenvalues and standard deviation for seizures
-plot_mean_eigenvalues(mean_first_eigenvalues, mean_second_eigenvalues, mean_third_eigenvalues, std_first_eigenvalues, std_second_eigenvalues, std_third_eigenvalues, 'Mean Eigenvalues per File (Seizure)')
+plot_mean_eigenvalues(mean_first_eigenvalues, mean_second_eigenvalues, mean_third_eigenvalues, 'Mean Eigenvalues per File (Seizure)')
 
 # Call the function to plot the mean eigenvalues and standard deviation for background
-plot_mean_eigenvalues(bckg_mean_first_eigenvalues, bckg_mean_second_eigenvalues, bckg_mean_third_eigenvalues, bckg_std_first_eigenvalues, bckg_std_second_eigenvalues, bckg_std_third_eigenvalues, 'Mean Eigenvalues per File (Non-Seizure)')
+plot_mean_eigenvalues(bckg_mean_first_eigenvalues, bckg_mean_second_eigenvalues, bckg_mean_third_eigenvalues, 'Mean Eigenvalues per File (Non-Seizure)')
 
 
+## Call the function to plot the metric for seizures
+#plot_metric(mean_first_eigenvalues, mean_second_eigenvalues, std_first_eigenvalues, std_second_eigenvalues, 'Metric per File (Seizure)')
 
+## Call the function to plot the metric for background
+#plot_metric(bckg_mean_first_eigenvalues, bckg_mean_second_eigenvalues, bckg_std_first_eigenvalues, bckg_std_second_eigenvalues, 'Metric per File (Non-Seizure)')
 
+# Calculate the standard deviation of the mean eigenvalues for seizures
+std_mean_first_eigenvalues = np.std(list(mean_first_eigenvalues.values()))
+std_mean_second_eigenvalues = np.std(list(mean_second_eigenvalues.values()))
+std_mean_third_eigenvalues = np.std(list(mean_third_eigenvalues.values()))
+
+# Calculate the standard deviation of the mean eigenvalues for background
+bckg_std_mean_first_eigenvalues = np.std(list(bckg_mean_first_eigenvalues.values()))
+bckg_std_mean_second_eigenvalues = np.std(list(bckg_mean_second_eigenvalues.values()))
+bckg_std_mean_third_eigenvalues = np.std(list(bckg_mean_third_eigenvalues.values()))
+
+# Plot the standard deviation of the mean eigenvalues
+def plot_std_mean_eigenvalues(std_mean_first_eigenvalues, std_mean_second_eigenvalues, std_mean_third_eigenvalues, bckg_std_mean_first_eigenvalues, bckg_std_mean_second_eigenvalues, bckg_std_mean_third_eigenvalues, title):
+    """
+    Plot the standard deviation of the mean eigenvalues for seizures and background
+    :param std_mean_first_eigenvalues: standard deviation of the mean first eigenvalues for seizures
+    :param std_mean_second_eigenvalues: standard deviation of the mean second eigenvalues for seizures
+    :param std_mean_third_eigenvalues: standard deviation of the mean third eigenvalues for seizures
+    :param bckg_std_mean_first_eigenvalues: standard deviation of the mean first eigenvalues for background
+    :param bckg_std_mean_second_eigenvalues: standard deviation of the mean second eigenvalues for background
+    :param bckg_std_mean_third_eigenvalues: standard deviation of the mean third eigenvalues for background
+    :param title: title of the plot
+    """
+    labels = ['First Eigenvalue', 'Second Eigenvalue', 'Third Eigenvalue']
+    seizure_means = [np.mean(list(mean_first_eigenvalues.values())), np.mean(list(mean_second_eigenvalues.values())), np.mean(list(mean_third_eigenvalues.values()))]
+    seizure_stds = [std_mean_first_eigenvalues, std_mean_second_eigenvalues, std_mean_third_eigenvalues]
+    background_means = [np.mean(list(bckg_mean_first_eigenvalues.values())), np.mean(list(bckg_mean_second_eigenvalues.values())), np.mean(list(bckg_mean_third_eigenvalues.values()))]
+    background_stds = [bckg_std_mean_first_eigenvalues, bckg_std_mean_second_eigenvalues, bckg_std_mean_third_eigenvalues]
+
+    x = np.arange(len(labels))
+    width = 0.35
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.errorbar(x - width/2, seizure_means, yerr=seizure_stds, fmt='o', label='Seizure', capsize=5, color='blue')
+    ax.errorbar(x + width/2, background_means, yerr=background_stds, fmt='o', label='Background', capsize=5, color='orange')
+
+    ax.set_xlabel('Eigenvalues')
+    ax.set_ylabel('Mean Eigenvalue with Standard Deviation')
+    ax.set_title(title)
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels)
+    ax.legend()
+
+    plt.show()
+
+# Call the function to plot the standard deviation of the mean eigenvalues
+plot_std_mean_eigenvalues(std_mean_first_eigenvalues, std_mean_second_eigenvalues, std_mean_third_eigenvalues, bckg_std_mean_first_eigenvalues, bckg_std_mean_second_eigenvalues, bckg_std_mean_third_eigenvalues, 'Standard Deviation of Mean Eigenvalues')
