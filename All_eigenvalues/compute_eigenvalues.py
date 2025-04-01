@@ -49,7 +49,7 @@ def get_SampleRate(edf_file_path):
     return raw.info['sfreq']
 
 
-def process_file(signal, window_duration, sample_rate, patient):
+def process_file(signal, window_duration, sample_rate, patient, overlap = 1):
     """
     Process the signal in windows of a certain duration
     :param signal: signal to process
@@ -60,6 +60,9 @@ def process_file(signal, window_duration, sample_rate, patient):
 
     # Total duration of the signal
     total_duration = signal.shape[1] / sample_rate
+
+    # Calculate step size
+    step_size =  window_duration - overlap
 
     # Calculate number of windows
     num_windows = int(np.floor(total_duration / window_duration))
@@ -87,6 +90,11 @@ def process_file(signal, window_duration, sample_rate, patient):
         time = time_gesamt[start_segment:end_segment]
         #time_with_offset = start_time + offset
 
+        
+        # Skip windows with insufficient data
+        if signal_window.shape[1] < window_duration * sample_rate:
+            continue
+
         # stoppe das aktuelle Fenster, wenn ersten 100 Eiträge in signal_window die gleichen sind. Die for schleife wird dann fortgesetzt
         #if np.sum(signal_window[:, 0] != signal_window[:, 80]) <= 10:
         if len(Counter(abs(signal_window[1][:30]))) <= 10:
@@ -104,7 +112,7 @@ def process_file(signal, window_duration, sample_rate, patient):
     return time_points, first_eigenvalues, second_eigenvalues, third_eigenvalues
 
 
-ABSZ_dict = get_sz_start_end(r"D:/Git/MeanEW/All_eigenvalues/GNSZ_seizures.csv")	
+ABSZ_dict = get_sz_start_end(r"D:/Git/MeanEW/All_eigenvalues/ABSZ_seizures.csv")	
 
 filtered_first_eigenvalues = []
 filtered_second_eigenvalues = []
@@ -120,9 +128,10 @@ for i in range(len(ABSZ_dict)):
     for j in range(len(sz_start_end)):
         start = math.ceil(sz_start_end[j][0])
         end = int(sz_start_end[j][1])
-        file_path = f"D:\Git\MeanEW\All_eigenvalues\Data\GNSZ_seizure_WB\{patient}_res.OWN11101_filtWB_avg.edf"
+        file_path = f"D:\Git\MeanEW\All_eigenvalues\Data\ABSZ_seizure_WB\{patient}_res.OWN11101_filtWB_avg.edf"
+        #file_path = f"D:\Robust DyCA\Moni_TUH_Daten\DyCA\EEG_Temple_University\{patient}.edf"
         time, signal = read_edf_file(file_path)
-        time_points, first_eigenvalues, second_eigenvalues, third_eigenvalues = process_file(signal, 3,256, patient)
+        time_points, first_eigenvalues, second_eigenvalues, third_eigenvalues = process_file(signal, 3,256, patient, overlap=1)
         for k, time_point in enumerate(time_points):
             if start <= time_point < end:
                 filtered_first_eigenvalues.append(first_eigenvalues[k])
@@ -211,7 +220,9 @@ def plot_mean_eigenvalues(mean_first_eigenvalues, mean_second_eigenvalues, mean_
     ax.bar(x - bar_width, mean_first_eigenvalues.values(), bar_width, label='First Eigenvalue')
     ax.bar(x, mean_second_eigenvalues.values(), bar_width, label='Second Eigenvalue')
     ax.bar(x + bar_width, mean_third_eigenvalues.values(), bar_width, label='Third Eigenvalue')
-
+    ax.set_ylabel('Number of Files')
+    ax.set_xticks(x)
+    #ax.set_xticklabels([str(i + 1) if (i + 1) % 25 == 0 else '' for i in range(len(patients))])
     ax.set_xlabel('Patients')
     ax.set_ylabel('Mean Eigenvalue')
     ax.set_title(title)
@@ -220,34 +231,35 @@ def plot_mean_eigenvalues(mean_first_eigenvalues, mean_second_eigenvalues, mean_
 
     plt.show()
 
-    # Plot the distribution of eigenvalues
-    fig, axs = plt.subplots(3, 1, figsize=(12, 18))
 
-    # Round eigenvalues to one decimal place
-    rounded_first_eigenvalues = [round(val, 2) for val in mean_first_eigenvalues.values()]
-    rounded_second_eigenvalues = [round(val, 2) for val in mean_second_eigenvalues.values()]
-    rounded_third_eigenvalues = [round(val, 2) for val in mean_third_eigenvalues.values()]
+    # # Plot the distribution of eigenvalues
+    # fig, axs = plt.subplots(3, 1, figsize=(12, 18))
 
-    # Plot histogram for first eigenvalues
-    axs[0].hist(rounded_first_eigenvalues, bins=np.arange(0, 1.1, 0.1), edgecolor='black')
-    axs[0].set_title('Histogram der einzelnen Eigenwerte (erster Eigenwert)')
-    axs[0].set_xlabel('Eigenwert')
-    axs[0].set_ylabel('Häufigkeit')
+    # # Round eigenvalues to one decimal place
+    # rounded_first_eigenvalues = [round(val, 2) for val in mean_first_eigenvalues.values()]
+    # rounded_second_eigenvalues = [round(val, 2) for val in mean_second_eigenvalues.values()]
+    # rounded_third_eigenvalues = [round(val, 2) for val in mean_third_eigenvalues.values()]
 
-    # Plot histogram for second eigenvalues
-    axs[1].hist(rounded_second_eigenvalues, bins=np.arange(0, 1.1, 0.1), edgecolor='black')
-    axs[1].set_title('Histogram der einzelnen Eigenwerte (zweiter Eigenwert)')
-    axs[1].set_xlabel('Eigenwert')
-    axs[1].set_ylabel('Häufigkeit')
+    # # Plot histogram for first eigenvalues
+    # axs[0].hist(rounded_first_eigenvalues, bins=np.arange(0, 1.1, 0.1), edgecolor='black')
+    # axs[0].set_title('Histogram der einzelnen Eigenwerte (erster Eigenwert)')
+    # axs[0].set_xlabel('Eigenwert')
+    # axs[0].set_ylabel('Häufigkeit')
 
-    # Plot histogram for third eigenvalues
-    axs[2].hist(rounded_third_eigenvalues, bins=np.arange(0, 1.1, 0.1), edgecolor='black')
-    axs[2].set_title('Histogram der einzelnen Eigenwerte (dritter Eigenwert)')
-    axs[2].set_xlabel('Eigenwert')
-    axs[2].set_ylabel('Häufigkeit')
+    # # Plot histogram for second eigenvalues
+    # axs[1].hist(rounded_second_eigenvalues, bins=np.arange(0, 1.1, 0.1), edgecolor='black')
+    # axs[1].set_title('Histogram der einzelnen Eigenwerte (zweiter Eigenwert)')
+    # axs[1].set_xlabel('Eigenwert')
+    # axs[1].set_ylabel('Häufigkeit')
 
-    plt.tight_layout()
-    plt.show()
+    # # Plot histogram for third eigenvalues
+    # axs[2].hist(rounded_third_eigenvalues, bins=np.arange(0, 1.1, 0.1), edgecolor='black')
+    # axs[2].set_title('Histogram der einzelnen Eigenwerte (dritter Eigenwert)')
+    # axs[2].set_xlabel('Eigenwert')
+    # axs[2].set_ylabel('Häufigkeit')
+
+    # plt.tight_layout()
+    # plt.show()
 
 def plot_metric(mean_first_eigenvalues, mean_second_eigenvalues, std_first_eigenvalues, std_second_eigenvalues, title):
     """
@@ -293,6 +305,9 @@ plot_mean_eigenvalues(bckg_mean_first_eigenvalues, bckg_mean_second_eigenvalues,
 ## Call the function to plot the metric for background
 #plot_metric(bckg_mean_first_eigenvalues, bckg_mean_second_eigenvalues, bckg_std_first_eigenvalues, bckg_std_second_eigenvalues, 'Metric per File (Non-Seizure)')
 
+
+
+
 # Calculate the standard deviation of the mean eigenvalues for seizures
 std_mean_first_eigenvalues = np.std(list(mean_first_eigenvalues.values()))
 std_mean_second_eigenvalues = np.std(list(mean_second_eigenvalues.values()))
@@ -302,6 +317,18 @@ std_mean_third_eigenvalues = np.std(list(mean_third_eigenvalues.values()))
 bckg_std_mean_first_eigenvalues = np.std(list(bckg_mean_first_eigenvalues.values()))
 bckg_std_mean_second_eigenvalues = np.std(list(bckg_mean_second_eigenvalues.values()))
 bckg_std_mean_third_eigenvalues = np.std(list(bckg_mean_third_eigenvalues.values()))
+
+
+# Calculate 2 standard deviations for seizures
+two_std_mean_first_eigenvalues = 2 * std_mean_first_eigenvalues
+two_std_mean_second_eigenvalues = 2 * std_mean_second_eigenvalues
+two_std_mean_third_eigenvalues = 2 * std_mean_third_eigenvalues
+
+# Calculate 2 standard deviations for background
+bckg_two_std_mean_first_eigenvalues = 2 * bckg_std_mean_first_eigenvalues
+bckg_two_std_mean_second_eigenvalues = 2 * bckg_std_mean_second_eigenvalues
+bckg_two_std_mean_third_eigenvalues = 2 * bckg_std_mean_third_eigenvalues
+
 
 # Plot the standard deviation of the mean eigenvalues
 def plot_std_mean_eigenvalues(std_mean_first_eigenvalues, std_mean_second_eigenvalues, std_mean_third_eigenvalues, bckg_std_mean_first_eigenvalues, bckg_std_mean_second_eigenvalues, bckg_std_mean_third_eigenvalues, title):
@@ -326,16 +353,20 @@ def plot_std_mean_eigenvalues(std_mean_first_eigenvalues, std_mean_second_eigenv
 
     fig, ax = plt.subplots(figsize=(10, 6))
     ax.errorbar(x - width/2, seizure_means, yerr=seizure_stds, fmt='o', label='Seizure', capsize=5, color='blue')
-    ax.errorbar(x + width/2, background_means, yerr=background_stds, fmt='o', label='Background', capsize=5, color='orange')
+    ax.errorbar(x + width/2, background_means, yerr=background_stds, fmt='o', label='Non-Seizure', capsize=5, color='orange')
 
     ax.set_xlabel('Eigenvalues')
     ax.set_ylabel('Mean Eigenvalue with Standard Deviation')
     ax.set_title(title)
     ax.set_xticks(x)
     ax.set_xticklabels(labels)
+    ax.set_ylim(0, 1)
     ax.legend()
 
     plt.show()
 
 # Call the function to plot the standard deviation of the mean eigenvalues
 plot_std_mean_eigenvalues(std_mean_first_eigenvalues, std_mean_second_eigenvalues, std_mean_third_eigenvalues, bckg_std_mean_first_eigenvalues, bckg_std_mean_second_eigenvalues, bckg_std_mean_third_eigenvalues, 'Standard Deviation of Mean Eigenvalues')
+
+# call the function to plot the 2 standard deviation of the mean eigenvalues 
+plot_std_mean_eigenvalues(two_std_mean_first_eigenvalues, two_std_mean_second_eigenvalues, two_std_mean_third_eigenvalues, bckg_two_std_mean_first_eigenvalues, bckg_two_std_mean_second_eigenvalues, bckg_two_std_mean_third_eigenvalues, '2 Standard Deviation of Mean Eigenvalues')

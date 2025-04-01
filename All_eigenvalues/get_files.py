@@ -125,8 +125,8 @@ if __name__ == "__main__":
     #LOCAL_PATH = "D:\\Git\\MeanEW\\All_eigenvalues\\Data\\ABSZ_seizure_WB"
     ## FNSZ
     #LOCAL_PATH = "D:\\Git\\MeanEW\\All_eigenvalues\\Data\\FNSZ_seizure_WB"
-    LOCAL_PATH = "D:\\Git\\MeanEW\\All_eigenvalues\\Data\\GNSZ_seizure_WB"
-
+    #LOCAL_PATH = "D:\\Git\\MeanEW\\All_eigenvalues\\Data\\GNSZ_seizure_WB"
+    LOCAL_PATH = "D:\\Git\\MeanEW\\All_eigenvalues\\Data\\CPSZ_seizure_WB"
     # Liste der Dateien, die heruntergeladen werden sollen
     FILES_TO_DOWNLOAD = file_name
 

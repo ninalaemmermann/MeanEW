@@ -1,0 +1,11 @@
+﻿FileName;Patient ;Gender  ;DOB     ;Age     ;RecStart;ECG     ;ECGLabel;SmplRate;CSV_version;BName;Duration;Sz start;Sz stop;Spalte1;ARTF;BCKG;SEIZ;UNKNOWN;FNSZ;GNSZ;FNSZ1st;GNSZ1st;SPSZ;CPSZ;ABSZ;TNSZ;CNSZ;TCSZ;ATSZ;MYSZ;TRIP;EXCLUDED;
+aaaaacqc_s003_t000.edf;aaaaacqc;F;01-JAN-0000;26;01. Jan 06;1;EKG-LE  ;250;csv_v1.0.0;aaaaacqc_s003_t000;2370;25.612;2369.6612;2344.0492;0;0;1;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;
+aaaaafcf_s009_t009.edf;aaaaafcf;M;01-JAN-0000;49;01. Jan 14;1;EKG1-REF  ;256;csv_v1.0.0;aaaaafcf_s009_t009;3206;1703.4364;1719.979;16.5426;0;0;1;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0
+aaaaaqtq_s006_t005.edf;aaaaaqtq;F;01-JAN-0000;25;01. Jan 14;1;EKG1-REF  ;256;csv_v1.0.0;aaaaaqtq_s006_t005;685;313.0231;330.1067;17.0836;0;0;1;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0
+aaaaaqtq_s003_t002.edf;aaaaaqtq;F;01-JAN-0000;25;01. Jan 14;1;EKG1-REF  ;256;csv_v1.0.0;aaaaaqtq_s003_t002;723;346.9777;366.7213;19.7436;0;0;1;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0
+aaaaaqtq_s003_t004.edf;aaaaaqtq;F;01-JAN-0000;25;01. Jan 14;1;EKG1-REF  ;256;csv_v1.0.0;aaaaaqtq_s003_t004;1107;344.0212;374.3779;30.3567;0;0;1;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0
+aaaaasfw_s005_t007.edf;aaaaasfw;F;01-JAN-0000;30;01. Jan 15;1;EKG1-REF  ;256;csv_v1.0.0;aaaaasfw_s005_t007;722;325.3445;384.0123;58.6678;0;0;1;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0
+aaaaasfw_s005_t011.edf;aaaaasfw;F;01-JAN-0000;30;01-JAN-1899;1;EKG1-REF  ;256;csv_v1.0.0;aaaaasfw_s005_t011;667;301.3052;365.9723;64.6671;0;0;1;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0
+aaaaaqek_s010_t005.edf;aaaaaqek;M;01-JAN-0000;23;01. Jan 15;1;EKG1-REF  ;256;csv_v1.0.0;aaaaaqek_s010_t005;993;389.0067;479.2074;90.2007;0;0;1;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0
+aaaaaqek_s010_t003.edf;aaaaaqek;M;01-JAN-0000;23;01. Jan 15;1;EKG1-REF  ;256;csv_v1.0.0;aaaaaqek_s010_t003;1325;413.0713;724.0358;310.9645;0;0;1;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0
+aaaaaoya_s010_t001.edf;aaaaaoya;M;01-JAN-0000;55;01. Jan 15;1;EKG1-REF  ;256;csv_v1.0.0;aaaaaoya_s010_t001;1390;334.0606;402;67.9394;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;1;0;0;0
